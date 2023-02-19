@@ -6,6 +6,7 @@ Docker compose 1.29.2
 ## Local install via docker-compose
 ```
 git clone https://github.com/kyakovlev/pwd.git
+mkdir app
 cd ./app
 git clone https://github.com/yiisoft/yii2-app-basic.git #Yii 2 Basic Project Template
 cd ../
@@ -16,6 +17,7 @@ curl -vvv -H "Host: server_name" http://localhost
 ## Remote install via ansible
 ```
 git clone https://github.com/kyakovlev/pwd.git
+mkdir app
 cd ./app
 git clone https://github.com/yiisoft/yii2-app-basic.git #Yii 2 Basic Project Template
 cd ../
