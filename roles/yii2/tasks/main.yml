@@ -1,0 +1,18 @@
+---
+
+- include_tasks: docker-compose.yml
+
+- name: Delete old content
+  file:
+    state: absent
+    path: /srv
+
+- name: Copy project
+  copy:
+    src: "{{playbook_dir}}/"
+    dest: /srv
+
+- name: Start service
+  docker_compose:
+    project_src: /srv
+    recreate: always

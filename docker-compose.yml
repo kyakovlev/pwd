@@ -1,0 +1,75 @@
+version: '3.5'
+services:
+  
+  #Web Server
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    links:
+      - app
+    networks:
+      - app-network
+
+  #Web application
+  app:
+    image: yiisoftware/yii2-php:7.4-apache
+    container_name: app
+    restart: unless-stopped
+    volumes:
+      - ./app/.composer-docker/cache:/root/.composer/cache:delegated
+      - ./app/yii2-app-basic:/app
+    ports:
+      - '8000:80'
+    links:
+      - db
+    networks:
+      - app-network
+
+  #MySQL Server
+  db:
+    image: mysql:${MYSQL_VERSION}
+    container_name: db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./mysql/yii.cnf:/etc/mysql/mysql.conf.d/yii.cnf
+      - db-data:/var/lib/mysql
+    depends_on:
+      - pre-app
+    networks:
+      - app-network
+
+  #Prepare Config
+  pre-app:
+    build:
+      context: pre-app
+      dockerfile: Dockerfile
+    image: pre-app
+    container_name: pre-app
+    restart: "no"
+    environment:
+      SERVER_NAME: ${SERVER_NAME}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./app/yii2-app-basic:/app:delegated
+      - ./nginx/conf.d:/nginx:delegated
+
+#Docker Networks
+networks:
+  app-network:
+    name: docker-net
+volumes:
+  db-data:
